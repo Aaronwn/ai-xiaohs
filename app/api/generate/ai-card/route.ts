@@ -1,7 +1,6 @@
-export const runtime = 'edge';
+import { DEEPSEEK_API_KEY, DEEPSEEK_API_URL } from '@/app/constants/env';
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+export const runtime = 'edge';
 
 export async function POST(req: Request) {
   if (req.method === 'OPTIONS') {
@@ -16,26 +15,32 @@ export async function POST(req: Request) {
   }
 
   if (!DEEPSEEK_API_KEY) {
-    return new Response(JSON.stringify({ error: 'API key is not configured' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return new Response(
+      JSON.stringify({ error: 'API key is not configured' }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   }
 
   try {
     const { messages } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
-      return new Response(JSON.stringify({ error: 'Invalid messages format' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Invalid messages format' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
     }
 
     const enhancedMessages = [
@@ -156,7 +161,11 @@ export async function POST(req: Request) {
             (this as any).processLine(line);
           }
         } catch (error) {
-          console.error('[Edge] Transform error:', error, new Date().toISOString());
+          console.error(
+            '[Edge] Transform error:',
+            error,
+            new Date().toISOString()
+          );
         }
       },
 
@@ -167,7 +176,9 @@ export async function POST(req: Request) {
       },
     });
 
-    const stream = response.body?.pipeThrough(transformStream)?.pipeThrough(new TextEncoderStream());
+    const stream = response.body
+      ?.pipeThrough(transformStream)
+      ?.pipeThrough(new TextEncoderStream());
 
     if (!stream) {
       throw new Error('Failed to create stream');

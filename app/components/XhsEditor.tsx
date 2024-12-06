@@ -10,6 +10,7 @@ import { useAnalytics } from '../hooks/useAnalytics';
 import HotPostEditor from './HotPostEditor';
 import { showToast } from '@/app/utils/toast';
 import ErrorBoundary from './ErrorBoundary';
+import CheckText from './CheckText';
 
 import ImageTextEditor from './ImageTextEditor';
 
@@ -24,8 +25,14 @@ export type CardType = 'column' | 'text' | 'ai';
 
 const FONT_OPTIONS = {
   中文简约: [
-    { label: '思源黑体', value: '"Source Han Sans SC", "Noto Sans SC", sans-serif' },
-    { label: '思源宋体', value: '"Source Han Serif SC", "Noto Serif SC", serif' },
+    {
+      label: '思源黑体',
+      value: '"Source Han Sans SC", "Noto Sans SC", sans-serif',
+    },
+    {
+      label: '思源宋体',
+      value: '"Source Han Serif SC", "Noto Serif SC", serif',
+    },
     { label: '阿里巴巴普惠体', value: '"Alibaba PuHuiTi", sans-serif' },
     { label: '霞鹜楷', value: '"LXGW WenKai", serif' },
     { label: '楷体', value: 'KaiTi, STKaiti, serif' },
@@ -62,6 +69,7 @@ const XhsEditor = () => {
 
   const cardRef = useRef<HTMLDivElement>(null);
   const contentEditRef = useRef<HTMLDivElement>(null);
+  const checkTextRef = useRef({ check: (val: string) => {} });
 
   const { trackEvent } = useAnalytics();
 
@@ -97,7 +105,10 @@ const XhsEditor = () => {
       if (contentEditRef.current) {
         const newSectionElement = contentEditRef.current.lastElementChild;
         if (newSectionElement) {
-          newSectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          newSectionElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
         }
       }
     }, 100);
@@ -112,7 +123,9 @@ const XhsEditor = () => {
 
   // 添加检测设备类型的辅助函数
   const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
   };
 
   // 修改下载函数
@@ -197,7 +210,9 @@ const XhsEditor = () => {
               number.style.position = 'absolute';
               number.style.left = '0';
               number.style.top = '0';
-              number.style.fontFamily = getFontStyle(editorState.font).fontFamily;
+              number.style.fontFamily = getFontStyle(
+                editorState.font
+              ).fontFamily;
               number.style.fontSize = editorState.fontSize;
               number.style.lineHeight = '1.6';
               number.style.minWidth = '1.5em';
@@ -233,7 +248,9 @@ const XhsEditor = () => {
               bullet.style.position = 'absolute';
               bullet.style.left = '0.5em';
               bullet.style.top = '0';
-              bullet.style.fontFamily = getFontStyle(editorState.font).fontFamily;
+              bullet.style.fontFamily = getFontStyle(
+                editorState.font
+              ).fontFamily;
               bullet.style.fontSize = editorState.fontSize;
               bullet.style.lineHeight = '1.6';
 
@@ -256,7 +273,8 @@ const XhsEditor = () => {
       // 8. 生成图片
       const canvas = await html2canvas(clone, {
         scale: 2,
-        backgroundColor: format === 'jpg' || format === 'jpeg' ? '#FFFFFF' : null,
+        backgroundColor:
+          format === 'jpg' || format === 'jpeg' ? '#FFFFFF' : null,
         logging: false,
         width,
         height: exportHeight,
@@ -281,7 +299,9 @@ const XhsEditor = () => {
         try {
           // 尝试使用 Web Share API
           const blob = await (await fetch(imageData)).blob();
-          const file = new File([blob], `小红书卡片_${Date.now()}.${format}`, { type: `image/${format}` });
+          const file = new File([blob], `小红书卡片_${Date.now()}.${format}`, {
+            type: `image/${format}`,
+          });
 
           if (navigator.share && navigator.canShare({ files: [file] })) {
             await navigator.share({
@@ -380,7 +400,8 @@ const XhsEditor = () => {
 
     trackEvent('change_style', {
       style_type: type,
-      style_value: typeof value === 'string' ? value : `${value.from}-${value.to}`,
+      style_value:
+        typeof value === 'string' ? value : `${value.from}-${value.to}`,
       timestamp: new Date().toISOString(),
     });
   };
@@ -446,8 +467,7 @@ const XhsEditor = () => {
   };
 
   // 确保正确传递 onContentGenerated
-  const handleContentGenerated = (content: string) => {
-    // console.log('Content received in XhsEditor:', content);
+  const handleContentGenerated = (content: string, done: boolean) => {
     // 更新状态
     const newSections = [
       {
@@ -462,6 +482,10 @@ const XhsEditor = () => {
       // console.log('New editor state:', newState);
       return newState;
     });
+
+    if (done) {
+      checkTextRef.current?.check(content);
+    }
   };
 
   // 图文编辑专用的下载函数
@@ -497,7 +521,8 @@ const XhsEditor = () => {
         // 生成图片
         const canvas = await html2canvas(clone, {
           scale: 2,
-          backgroundColor: format === 'jpg' || format === 'jpeg' ? '#FFFFFF' : null,
+          backgroundColor:
+            format === 'jpg' || format === 'jpeg' ? '#FFFFFF' : null,
           logging: true, // 开启日志以便调试
           width,
           height: 512,
@@ -520,7 +545,11 @@ const XhsEditor = () => {
               throw new Error('Failed to create blob from image data');
             }
 
-            const file = new File([blob], `小红书图片_${Date.now()}.${format}`, { type: `image/${format}` });
+            const file = new File(
+              [blob],
+              `小红书图片_${Date.now()}.${format}`,
+              { type: `image/${format}` }
+            );
 
             if (navigator.share && navigator.canShare({ files: [file] })) {
               await navigator.share({
@@ -615,37 +644,55 @@ const XhsEditor = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className='min-h-screen'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
           {/* 标题区域 - 优化居中效果 */}
-          <header className="mb-12 mt-8 text-center">
+          <header className='mb-12 mt-8 text-center'>
             {/* 主标题 - 优化布局和间距 */}
-            <h1 className="flex flex-col items-center justify-center mb-4">
-              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                <span className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">小红书图文生成器</span>
-                <span className={`text-xl sm:text-2xl font-bold ${GRADIENT_TEXT}`}>让创作自由起飞</span>
+            <h1 className='flex flex-col items-center justify-center mb-4'>
+              <div className='flex flex-col sm:flex-row items-center gap-2 sm:gap-3'>
+                <span className='text-2xl sm:text-3xl font-bold tracking-tight text-gray-900'>
+                  小红书图文生成器
+                </span>
+                <span
+                  className={`text-xl sm:text-2xl font-bold ${GRADIENT_TEXT}`}
+                >
+                  让创作自由起飞
+                </span>
               </div>
             </h1>
 
             {/* 副标题 - 优化布局和间距 */}
-            <div className="flex items-center justify-center">
-              <div className="flex items-center flex-wrap justify-center gap-3">
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900">AI智能创作</span>
-                  <svg className="w-4 h-4 text-rose-500 ml-1.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+            <div className='flex items-center justify-center'>
+              <div className='flex items-center flex-wrap justify-center gap-3'>
+                <div className='flex items-center'>
+                  <span className='font-medium text-gray-900'>AI智能创作</span>
+                  <svg
+                    className='w-4 h-4 text-rose-500 ml-1.5'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z' />
                   </svg>
                 </div>
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900">一键排版</span>
-                  <svg className="w-4 h-4 text-rose-500 ml-1.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                <div className='flex items-center'>
+                  <span className='font-medium text-gray-900'>一键排版</span>
+                  <svg
+                    className='w-4 h-4 text-rose-500 ml-1.5'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z' />
                   </svg>
                 </div>
-                <div className="flex items-center">
-                  <span className="font-medium text-gray-900">即时导出</span>
-                  <svg className="w-4 h-4 text-rose-500 ml-1.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                <div className='flex items-center'>
+                  <span className='font-medium text-gray-900'>即时导出</span>
+                  <svg
+                    className='w-4 h-4 text-rose-500 ml-1.5'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z' />
                   </svg>
                 </div>
               </div>
@@ -653,20 +700,21 @@ const XhsEditor = () => {
           </header>
 
           {/* 主编辑区域 - 优化移动端布局 */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+          <div className='grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6'>
             {/* 左侧编辑区 */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className='lg:col-span-3 space-y-4'>
               {/* 模板选择 */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100">
-                <div className="p-3">
-                  <div className="inline-flex p-0.5 bg-gray-100/80 rounded-lg">
+              <div className='bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100'>
+                <div className='p-3'>
+                  <div className='inline-flex p-0.5 bg-gray-100/80 rounded-lg'>
                     <button
                       className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
                         editorState.template === 'ai'
                           ? 'bg-white text-gray-900 shadow-sm'
                           : 'text-gray-600 hover:text-gray-900'
                       }`}
-                      onClick={() => handleTemplateChange('ai')}>
+                      onClick={() => handleTemplateChange('ai')}
+                    >
                       灵感创作
                     </button>
                     <button
@@ -675,7 +723,8 @@ const XhsEditor = () => {
                           ? 'bg-white text-gray-900 shadow-sm'
                           : 'text-gray-600 hover:text-gray-900'
                       }`}
-                      onClick={() => handleTemplateChange('hot_post')}>
+                      onClick={() => handleTemplateChange('hot_post')}
+                    >
                       爆款仿写
                     </button>
                     <button
@@ -684,7 +733,8 @@ const XhsEditor = () => {
                           ? 'bg-white text-gray-900 shadow-sm'
                           : 'text-gray-600 hover:text-gray-900'
                       }`}
-                      onClick={() => handleTemplateChange('image_text')}>
+                      onClick={() => handleTemplateChange('image_text')}
+                    >
                       文字配图
                     </button>
                   </div>
@@ -692,53 +742,63 @@ const XhsEditor = () => {
               </div>
 
               {/* 样式设置区 - 优化移动端布局 */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 p-3">
-                <div className="flex flex-col sm:grid sm:grid-cols-12 gap-3">
+              <div className='bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 p-3'>
+                <div className='flex flex-col sm:grid sm:grid-cols-12 gap-3'>
                   {/* 字体和字号选择器在移动端并排显示 */}
                   {['ai', 'hot_post'].includes(editorState.template) && (
-                    <div className="flex gap-2 sm:contents">
+                    <div className='flex gap-2 sm:contents'>
                       {/* 字体选择 - 移动端占据更多空间 */}
-                      <div className="flex-1 sm:col-span-4">
+                      <div className='flex-1 sm:col-span-4'>
                         <select
                           value={editorState.font}
-                          onChange={e => handleStyleChange('font', e.target.value)}
-                          className="w-full px-2.5 py-2 sm:py-1.5 rounded-lg border border-gray-200 bg-white text-sm
-                                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                          {Object.entries(FONT_OPTIONS).map(([category, fonts]) => (
-                            <optgroup key={category} label={category}>
-                              {fonts.map(font => (
-                                <option key={font.label} value={font.value}>
-                                  {font.label}
-                                </option>
-                              ))}
-                            </optgroup>
-                          ))}
+                          onChange={e =>
+                            handleStyleChange('font', e.target.value)
+                          }
+                          className='w-full px-2.5 py-2 sm:py-1.5 rounded-lg border border-gray-200 bg-white text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all'
+                        >
+                          {Object.entries(FONT_OPTIONS).map(
+                            ([category, fonts]) => (
+                              <optgroup key={category} label={category}>
+                                {fonts.map(font => (
+                                  <option key={font.label} value={font.value}>
+                                    {font.label}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            )
+                          )}
                         </select>
                       </div>
 
                       {/* 字号选择 - 移动端保持合适比例 */}
-                      <div className="w-24 sm:col-span-2">
+                      <div className='w-24 sm:col-span-2'>
                         <select
                           value={editorState.fontSize}
-                          onChange={e => handleStyleChange('fontSize', e.target.value)}
-                          className="w-full px-2.5 py-2 sm:py-1.5 rounded-lg border border-gray-200 bg-white text-sm
-                                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all">
-                          <option value="14px">14px</option>
-                          <option value="15px">15px</option>
-                          <option value="16px">16px</option>
-                          <option value="18px">18px</option>
-                          <option value="20px">20px</option>
+                          onChange={e =>
+                            handleStyleChange('fontSize', e.target.value)
+                          }
+                          className='w-full px-2.5 py-2 sm:py-1.5 rounded-lg border border-gray-200 bg-white text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all'
+                        >
+                          <option value='14px'>14px</option>
+                          <option value='15px'>15px</option>
+                          <option value='16px'>16px</option>
+                          <option value='18px'>18px</option>
+                          <option value='20px'>20px</option>
                         </select>
                       </div>
                     </div>
                   )}
 
                   {/* 背景色选择 - 移动端优化 */}
-                  <div className="sm:col-span-6 mt-2 sm:mt-0">
+                  <div className='sm:col-span-6 mt-2 sm:mt-0'>
                     {/* 添加背景色标签 */}
-                    <div className="text-xs text-gray-500 mb-2 sm:hidden">背景色</div>
+                    <div className='text-xs text-gray-500 mb-2 sm:hidden'>
+                      背景色
+                    </div>
                     {/* 改用网格布局展示颜色选项 */}
-                    <div className="grid grid-cols-6 sm:flex sm:items-center gap-2 sm:gap-1">
+                    <div className='grid grid-cols-6 sm:flex sm:items-center gap-2 sm:gap-1'>
                       {[
                         {
                           from: '#fbc2eb',
@@ -795,14 +855,18 @@ const XhsEditor = () => {
                         <button
                           key={`${from}-${to}`}
                           className={`group relative w-8 h-8 sm:w-6 sm:h-6 rounded-full transition-all duration-200 ${
-                            editorState.backgroundColor.from === from && editorState.backgroundColor.to === to
+                            editorState.backgroundColor.from === from &&
+                            editorState.backgroundColor.to === to
                               ? 'ring-2 ring-offset-1 ring-blue-500/30 scale-110'
                               : 'hover:scale-110'
                           }`}
                           style={{
                             background: `linear-gradient(135deg, ${from}, ${to})`,
                           }}
-                          onClick={() => handleStyleChange('backgroundColor', { from, to })}></button>
+                          onClick={() =>
+                            handleStyleChange('backgroundColor', { from, to })
+                          }
+                        ></button>
                       ))}
                     </div>
                   </div>
@@ -810,21 +874,24 @@ const XhsEditor = () => {
               </div>
 
               {/* 内容编辑区 */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 p-4">
+              <div className='bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 p-4'>
                 {['ai', 'hot_post'].includes(editorState.template) && (
                   <input
-                    type="text"
+                    type='text'
                     value={editorState.title}
                     onChange={e => handleTitleChange(e.target.value)}
-                    placeholder="输入标题"
-                    className="w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200
+                    placeholder='输入标题'
+                    className='w-full px-4 py-2.5 bg-white rounded-lg border border-gray-200
                            focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all
-                           text-lg mb-4"
+                           text-lg mb-4'
                   />
                 )}
 
                 {editorState.template === 'ai' && (
-                  <AIContentEditor title={editorState.title} onContentGenerated={handleContentGenerated} />
+                  <AIContentEditor
+                    title={editorState.title}
+                    onContentGenerated={handleContentGenerated}
+                  />
                 )}
                 {editorState.template === 'hot_post' && (
                   <HotPostEditor
@@ -836,7 +903,10 @@ const XhsEditor = () => {
                           content: content,
                         },
                       ];
-                      setEditorState(prev => ({ ...prev, sections: newSections }));
+                      setEditorState(prev => ({
+                        ...prev,
+                        sections: newSections,
+                      }));
                     }}
                   />
                 )}
@@ -860,58 +930,69 @@ const XhsEditor = () => {
             </div>
 
             {/* 右侧预览区 - 优化高度 */}
-            <div className="lg:col-span-2">
+            <div className='lg:col-span-2'>
               {/* 调整最外层容器高度，移除固定最小高度 */}
-              <div className="top-6">
+              <div className='top-6'>
                 {/* 预览卡片容器 - 调整高度和布局 */}
                 <div
-                  className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100/80 p-4
-                               flex flex-col">
+                  className='bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100/80 p-4
+                               flex flex-col'
+                >
                   {/* 预览标题 */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-600">预览效果</span>
-                    <div className="flex gap-1">
-                      <div className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                  <div className='flex items-center justify-between mb-3'>
+                    <span className='text-sm font-medium text-gray-600'>
+                      预览效果
+                    </span>
+                    <div className='flex gap-1'>
+                      <div className='w-2.5 h-2.5 rounded-full bg-rose-400' />
+                      <div className='w-2.5 h-2.5 rounded-full bg-yellow-400' />
+                      <div className='w-2.5 h-2.5 rounded-full bg-green-400' />
                     </div>
                   </div>
 
                   {/* 卡片内容 - 整高度和布局 */}
-                  <div className="flex justify-center items-start">
+                  <div className='flex justify-center items-start'>
                     <div
-                      className="w-full max-w-[360px] sm:w-[360px] relative rounded-lg overflow-hidden
-                                  bg-gradient-to-b from-gray-50/50 to-white/50">
+                      className='w-full max-w-[360px] sm:w-[360px] relative rounded-lg overflow-hidden
+                                  bg-gradient-to-b from-gray-50/50 to-white/50'
+                    >
                       {editorState.template === 'image_text' ? (
                         // 文字配图预览
                         <div
                           ref={cardRef}
                           data-card
-                          className="relative w-full h-[512px] rounded-lg overflow-hidden"
+                          className='relative w-full h-[512px] rounded-lg overflow-hidden'
                           style={{
                             backgroundImage: `linear-gradient(135deg, ${editorState.backgroundColor.from}, ${editorState.backgroundColor.to})`,
-                          }}>
+                          }}
+                        >
                           {/* 图片容器 */}
                           {editorState.sections[0]?.imageUrl ? (
-                            <div className="h-full p-4">
-                              <div className="h-full w-full relative rounded-lg overflow-hidden">
+                            <div className='h-full p-4'>
+                              <div className='h-full w-full relative rounded-lg overflow-hidden'>
                                 <img
                                   src={editorState.sections[0].imageUrl}
-                                  alt="Preview content"
-                                  className="w-full h-full object-cover"
-                                  loading="lazy"
+                                  alt='Preview content'
+                                  className='w-full h-full object-cover'
+                                  loading='lazy'
                                 />
                               </div>
                             </div>
                           ) : (
                             // 无图片时的提示 - 统一样式
-                            <div className="h-full flex flex-col items-center justify-center p-4 text-center">
-                              <div className="w-16 h-16 mb-4 text-gray-300">
-                                <svg className="w-full h-full" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
+                            <div className='h-full flex flex-col items-center justify-center p-4 text-center'>
+                              <div className='w-16 h-16 mb-4 text-gray-300'>
+                                <svg
+                                  className='w-full h-full'
+                                  fill='currentColor'
+                                  viewBox='0 0 24 24'
+                                >
+                                  <path d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z' />
                                 </svg>
                               </div>
-                              <p className="text-gray-500 text-sm">请输入关键词生成图片</p>
+                              <p className='text-gray-500 text-sm'>
+                                请输入关键词生成图片
+                              </p>
                             </div>
                           )}
                         </div>
@@ -932,19 +1013,21 @@ const XhsEditor = () => {
                   </div>
 
                   {/* 操作按钮组 */}
-                  <div className="pt-4 px-2 sm:px-4 flex gap-2 sm:gap-3">
+                  <div className='pt-4 px-2 sm:px-4 flex gap-2 sm:gap-3'>
                     {/* 复制文本按钮 - 仅在非文字配图模式显示 */}
                     {editorState.template !== 'image_text' && (
                       <button
                         onClick={async () => {
-                          const content = editorState.sections[0]?.content || '';
+                          const content =
+                            editorState.sections[0]?.content || '';
                           if (!content.trim()) {
                             showToast('暂无内容可复制', 'error');
                             return;
                           }
 
                           try {
-                            const plainText = convertMarkdownToPlainText(content);
+                            const plainText =
+                              convertMarkdownToPlainText(content);
                             await navigator.clipboard.writeText(plainText);
                             showToast('已复制到剪贴板');
                           } catch (err) {
@@ -952,18 +1035,27 @@ const XhsEditor = () => {
                             showToast('复制失败，请重试', 'error');
                           }
                         }}
-                        className="flex-1 px-4 py-2.5 bg-gray-50 hover:bg-gray-100
+                        className='flex-1 px-4 py-2.5 bg-gray-50 hover:bg-gray-100
                                  rounded-lg transition-all duration-200
                                  text-sm font-medium text-gray-700
-                                 flex items-center justify-center gap-2">
+                                 flex items-center justify-center gap-2'
+                      >
                         <svg
-                          className="w-4 h-4 text-gray-600"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2">
-                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          className='w-4 h-4 text-gray-600'
+                          viewBox='0 0 24 24'
+                          fill='none'
+                          stroke='currentColor'
+                          strokeWidth='2'
+                        >
+                          <rect
+                            x='9'
+                            y='9'
+                            width='13'
+                            height='13'
+                            rx='2'
+                            ry='2'
+                          ></rect>
+                          <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'></path>
                         </svg>
                         <span>复制文本</span>
                       </button>
@@ -981,7 +1073,8 @@ const XhsEditor = () => {
                           handleImageDownload('png');
                         } else {
                           // 其他模式
-                          const content = editorState.sections[0]?.content || '';
+                          const content =
+                            editorState.sections[0]?.content || '';
                           if (!content.trim()) {
                             showToast('暂无内容可下载', 'error');
                             return;
@@ -989,23 +1082,31 @@ const XhsEditor = () => {
                           handleDownload('png');
                         }
                       }}
-                      className="flex-1 px-4 py-2.5
+                      className='flex-1 px-4 py-2.5
                                bg-gradient-to-r from-blue-500 to-purple-500
                                hover:from-blue-600 hover:to-purple-600
                                text-white rounded-lg transition-all duration-200
                                text-sm font-medium
-                               flex items-center justify-center gap-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               flex items-center justify-center gap-2'
+                    >
+                      <svg
+                        className='w-4 h-4'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
                         <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
                           strokeWidth={2}
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
                         />
                       </svg>
                       <span>下载图片</span>
                     </button>
                   </div>
+
+                  <CheckText ref={checkTextRef} />
                 </div>
               </div>
             </div>

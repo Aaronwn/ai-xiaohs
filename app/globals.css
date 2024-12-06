@@ -61,3 +61,13 @@ body {
     transparent
   );
 }
+
+.jwy-highRisk {
+  background-color: #e92424;
+  color: #fff
+}
+
+.jwy-lowRisk {
+  background-color: #ff7800;
+  color: #fff
+}

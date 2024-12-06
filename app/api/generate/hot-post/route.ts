@@ -1,7 +1,6 @@
-export const runtime = 'edge'
+import { DEEPSEEK_API_KEY, DEEPSEEK_API_URL } from '@/app/constants/env';
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'
+export const runtime = 'edge';
 
 export async function POST(req: Request) {
   if (!DEEPSEEK_API_KEY) {
@@ -9,22 +8,23 @@ export async function POST(req: Request) {
       JSON.stringify({ error: 'API key is not configured' }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
-    )
+    );
   }
 
   try {
-    const { originalText, title, keywords, style, additionalInfo } = await req.json()
+    const { originalText, title, keywords, style, additionalInfo } =
+      await req.json();
 
     if (!originalText || !title || !keywords) {
       return new Response(
         JSON.stringify({ error: 'Missing required parameters' }),
         {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         }
-      )
+      );
     }
 
     // 保持原有的消息结构
@@ -82,13 +82,13 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
 3. 内容精炼有价值
 5. 总字数限200字内`,
       },
-    ]
+    ];
 
     const response = await fetch(DEEPSEEK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
         model: 'deepseek-chat',
@@ -100,10 +100,10 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
         frequency_penalty: 0.4,
         top_p: 0.9,
       }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`Deepseek API error: ${response.status}`)
+      throw new Error(`Deepseek API error: ${response.status}`);
     }
 
     const transformStream = new TransformStream({
@@ -122,11 +122,13 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content || '';
               if (content) {
-                controller.enqueue(`data: ${JSON.stringify({
-                  content,
-                  done: false,
-                  isPartial: true
-                })}\n\n`);
+                controller.enqueue(
+                  `data: ${JSON.stringify({
+                    content,
+                    done: false,
+                    isPartial: true,
+                  })}\n\n`
+                );
               }
             } catch (e) {
               console.error('Parse error:', e, 'Line:', line);
@@ -149,7 +151,11 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
             (this as any).processLine(line);
           }
         } catch (error) {
-          console.error('[Edge] Transform error:', error, new Date().toISOString());
+          console.error(
+            '[Edge] Transform error:',
+            error,
+            new Date().toISOString()
+          );
         }
       },
 
@@ -157,7 +163,7 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
         if ((this as any).buffer) {
           (this as any).processLine((this as any).buffer);
         }
-      }
+      },
     });
 
     const stream = response.body
@@ -172,25 +178,24 @@ ${additionalInfo ? `补充信息：${additionalInfo}` : ''}
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache, no-transform',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'X-Accel-Buffering': 'no',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     });
-
   } catch (error) {
-    console.error('Generation error:', error)
+    console.error('Generation error:', error);
     return new Response(
       JSON.stringify({
         error: '生成失败，请重试',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
-    )
+    );
   }
 }
