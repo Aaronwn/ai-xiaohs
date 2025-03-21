@@ -1,7 +1,7 @@
 export const runtime = 'edge';
 
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function POST(req: Request) {
   if (req.method === 'OPTIONS') {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!DEEPSEEK_API_KEY) {
+  if (!OPENROUTER_API_KEY) {
     return new Response(JSON.stringify({ error: 'API key is not configured' }), {
       status: 500,
       headers: {
@@ -88,14 +88,14 @@ export async function POST(req: Request) {
       ...messages,
     ];
 
-    const response = await fetch(DEEPSEEK_API_URL, {
+    const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'openai/gpt-4o-mini',
         messages: enhancedMessages,
         temperature: 0.8,
         max_tokens: 2000,
@@ -105,8 +105,8 @@ export async function POST(req: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Deepseek API error:', response.status, errorText);
-      throw new Error(`Deepseek API error: ${response.status} - ${errorText}`);
+      console.error('OpenRouter API error:', response.status, errorText);
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
     const transformStream = new TransformStream({
