@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '文灵AI - 创新AI驱动写作助手 | 一键生成精美卡片',
     description: '使用文灵AI，快速生成吸引人的内容卡片。支持AI文案创作、精美排版、一键导出。',
-    url: 'https://www.xhscard.top/',
+    url: '<link rel="canonical" href="https://www.xhscard.top" />',
     siteName: '文灵AI',
     images: [
       {
