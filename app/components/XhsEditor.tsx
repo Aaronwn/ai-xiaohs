@@ -45,6 +45,28 @@ const GRADIENT_TEXT = `
   bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500
 `;
 
+// html2canvas currently cannot parse some modern color functions (e.g. oklch).
+// Sanitize cloned styles to avoid runtime parse failures during export.
+const sanitizeCloneForHtml2Canvas = (clonedDoc: Document) => {
+  const unsupportedColorRegex = /(oklch|oklab|lch|lab)\([^)]+\)/i;
+  const unsupportedColorRegexGlobal = /(oklch|oklab|lch|lab)\([^)]+\)/gi;
+
+  const replaceUnsupportedColors = (value: string) => value.replace(unsupportedColorRegexGlobal, 'rgb(0, 0, 0)');
+
+  clonedDoc.querySelectorAll('style').forEach(styleTag => {
+    if (!styleTag.textContent) return;
+    if (!unsupportedColorRegex.test(styleTag.textContent)) return;
+    styleTag.textContent = replaceUnsupportedColors(styleTag.textContent);
+  });
+
+  clonedDoc.querySelectorAll<HTMLElement>('[style]').forEach(el => {
+    const inlineStyle = el.getAttribute('style');
+    if (!inlineStyle) return;
+    if (!unsupportedColorRegex.test(inlineStyle)) return;
+    el.setAttribute('style', replaceUnsupportedColors(inlineStyle));
+  });
+};
+
 const XhsEditor = () => {
   const [editorState, setEditorState] = useState<EditorState>({
     template: 'ai',
@@ -122,6 +144,8 @@ const XhsEditor = () => {
     try {
       const previewElement = cardRef.current;
       const { width } = previewElement.getBoundingClientRect();
+      const EXPORT_OUTER_PADDING = 24;
+      const EXPORT_INNER_PADDING = 20;
 
       // 1. 创建临时容器
       const tempContainer = document.createElement('div');
@@ -147,10 +171,18 @@ const XhsEditor = () => {
       clone.style.width = `${width}px`;
       clone.style.height = 'auto';
       clone.style.overflow = 'visible';
+      clone.style.minHeight = '0';
       clone.style.maxHeight = 'none';
       clone.style.transform = 'none';
       clone.style.position = 'static';
       clone.style.background = `linear-gradient(135deg, ${editorState.backgroundColor.from}, ${editorState.backgroundColor.to})`;
+
+      // 显式固定导出时的外层留白，避免浏览器计算差异导致上下边距不一致
+      const exportFrame = clone.firstElementChild;
+      if (exportFrame instanceof HTMLElement) {
+        exportFrame.style.padding = `${EXPORT_OUTER_PADDING}px`;
+        exportFrame.style.boxSizing = 'border-box';
+      }
 
       // 5. 处理内容样式
       const contentCards = clone.querySelectorAll('.bg-white\\/60');
@@ -160,6 +192,10 @@ const XhsEditor = () => {
           card.style.backdropFilter = 'blur(8px)';
           card.style.borderRadius = '0.5rem';
           card.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+          card.style.padding = `${EXPORT_INNER_PADDING}px`;
+          card.style.margin = '0';
+          card.style.width = '100%';
+          card.style.boxSizing = 'border-box';
         }
       });
 
@@ -248,9 +284,13 @@ const XhsEditor = () => {
       await new Promise(resolve => setTimeout(resolve, 200));
 
       // 7. 设置导出尺寸
-      const contentHeight = clone.scrollHeight;
+      const firstContentCard = clone.querySelector('.bg-white\\/60');
+      const measuredContentHeight =
+        firstContentCard instanceof HTMLElement
+          ? Math.ceil(firstContentCard.getBoundingClientRect().height + EXPORT_OUTER_PADDING * 2)
+          : Math.ceil(clone.scrollHeight);
       const minHeight = (width * 4) / 3;
-      const exportHeight = Math.max(contentHeight, minHeight);
+      const exportHeight = Math.max(measuredContentHeight, minHeight);
       clone.style.height = `${exportHeight}px`;
 
       // 8. 生成图片
@@ -265,6 +305,7 @@ const XhsEditor = () => {
         useCORS: true,
         allowTaint: true,
         onclone: clonedDoc => {
+          sanitizeCloneForHtml2Canvas(clonedDoc);
           const clonedElement = clonedDoc.querySelector('[data-card]');
           if (clonedElement instanceof HTMLElement) {
             clonedElement.style.width = `${width}px`;
@@ -503,6 +544,9 @@ const XhsEditor = () => {
           height: 512,
           useCORS: true,
           allowTaint: true,
+          onclone: clonedDoc => {
+            sanitizeCloneForHtml2Canvas(clonedDoc);
+          },
         });
 
         if (!canvas) {
