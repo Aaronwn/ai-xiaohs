@@ -149,7 +149,7 @@ export default function AIContentEditor({ title, onContentGenerated }: AIContent
   return (
     <div className="space-y-4">
       {/* AI内容生成区 */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4">
+      <div className="bg-[#F5F0EB] rounded-xl p-4">
         <div className="flex flex-col space-y-3">
           {/* 功能说明 */}
           <div className="flex items-start space-x-3">
@@ -174,8 +174,8 @@ export default function AIContentEditor({ title, onContentGenerated }: AIContent
           {/* 生成按钮 */}
           <button
             onClick={generateContent}
-            className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500
-                     hover:from-blue-600 hover:to-purple-600 text-white rounded-xl
+            className="w-full px-4 py-3 bg-[#D97757]
+                     hover:bg-[#C4623F] text-white rounded-xl
                      transition-all duration-200 flex items-center justify-center
                      gap-2 shadow-sm hover:shadow-md disabled:opacity-50
                      disabled:cursor-not-allowed font-medium"

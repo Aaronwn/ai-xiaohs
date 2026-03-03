@@ -41,8 +41,7 @@ const FONT_OPTIONS = {
 
 // 添加新的样式常量
 const GRADIENT_TEXT = `
-  bg-clip-text text-transparent
-  bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500
+  text-[#D97757]
 `;
 
 // html2canvas currently cannot parse some modern color functions (e.g. oklch).
@@ -1034,8 +1033,8 @@ const XhsEditor = () => {
                         }
                       }}
                       className="flex-1 px-4 py-2.5
-                               bg-gradient-to-r from-blue-500 to-purple-500
-                               hover:from-blue-600 hover:to-purple-600
+                               bg-[#D97757]
+                               hover:bg-[#C4623F]
                                text-white rounded-lg transition-all duration-200
                                text-sm font-medium
                                flex items-center justify-center gap-2">

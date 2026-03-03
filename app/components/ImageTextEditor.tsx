@@ -55,8 +55,8 @@ export default function ImageTextEditor({ onImageGenerated }: ImageTextEditorPro
       <button
         onClick={handleGenerateImage}
         disabled={isLoading}
-        className={`w-full px-4 py-2 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg 
-                   font-medium transition-all hover:from-blue-600 hover:to-blue-700
+        className={`w-full px-4 py-2 text-white bg-[#D97757] rounded-lg
+                   font-medium transition-all hover:bg-[#C4623F]
                    disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {isLoading ? '生成中...' : '生成图片'}

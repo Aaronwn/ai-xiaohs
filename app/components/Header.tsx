@@ -35,7 +35,7 @@ export default function Header() {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'backdrop-blur-sm bg-gradient-to-br from-rose-50/80 via-purple-50/80 to-blue-50/80 border-b border-gray-100'
+          ? 'backdrop-blur-sm bg-[#FAF9F7]/90 border-b border-gray-100'
           : 'bg-transparent'
       }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +43,7 @@ export default function Header() {
           {/* 左侧 Logo 区域 */}
           <div className="flex items-center gap-2">
             <Image src="/favicon.ico" alt="Logo" width={24} height={24} className="w-6 h-6" />
-            <span className="text-lg font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            <span className="text-lg font-medium text-gray-800">
               文灵AI
             </span>
           </div>
@@ -84,9 +84,9 @@ export default function Header() {
               <button
                 onMouseEnter={() => setShowQRCode(true)}
                 onMouseLeave={() => setShowQRCode(false)}
-                className="px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500
+                className="px-3 sm:px-4 py-1.5 rounded-full bg-[#D97757]
                          text-white text-xs sm:text-sm font-medium transition-all duration-300
-                         hover:shadow-lg hover:scale-105 active:scale-95">
+                         hover:bg-[#C4623F] hover:shadow-lg hover:scale-105 active:scale-95">
                 联系我
               </button>
 

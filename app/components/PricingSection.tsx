@@ -23,7 +23,7 @@ const tiers = [
     description: '适合内容创作者与品牌号',
     features: ['每月200次AI文案生成', '专业排版功能', '全部精选字体', '全部背景颜色', '爆款文案仿写', '优先技术支持'],
     buttonText: '升级专业版',
-    buttonStyle: 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600',
+    buttonStyle: 'bg-[#D97757] text-white hover:bg-[#C4623F]',
     mostPopular: true,
   },
 ];
@@ -46,7 +46,7 @@ export default function PricingSection() {
                 tier.mostPopular ? 'bg-gray-50 shadow-md relative' : 'bg-white'
               }`}>
               {tier.mostPopular && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1 text-sm font-medium text-white">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-[#D97757] px-4 py-1 text-sm font-medium text-white">
                   推荐方案
                 </span>
               )}
@@ -64,7 +64,7 @@ export default function PricingSection() {
               <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
                 {tier.features.map(feature => (
                   <li key={feature} className="flex gap-x-3">
-                    <CheckIcon className="h-6 w-5 flex-none text-blue-500" aria-hidden="true" />
+                    <CheckIcon className="h-6 w-5 flex-none text-[#D97757]" aria-hidden="true" />
                     {feature}
                   </li>
                 ))}

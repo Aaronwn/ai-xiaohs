@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="max-w-sm">
             <div className="flex items-center gap-2 mb-3">
               <Image src="/favicon.ico" alt="Logo" width={20} height={20} className="w-5 h-5" />
-              <span className="text-base font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              <span className="text-base font-medium text-gray-800">
                 文灵AI
               </span>
             </div>
