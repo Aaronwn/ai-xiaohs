@@ -148,68 +148,67 @@ export default function AIContentEditor({ title, onContentGenerated }: AIContent
 
   return (
     <div className="space-y-4">
-      {/* AI内容生成区 */}
+      {/* AI功能说明 */}
       <div className="bg-[#F5F0EB] rounded-xl p-4">
-        <div className="flex flex-col space-y-3">
-          {/* 功能说明 */}
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 mt-1">
-              <div className="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div className="flex-1 text-sm text-gray-600 leading-relaxed">
-              <p>AI将根据你的标题创作一篇吸引眼球、互动性强的小红书笔记。</p>
-              <p className="mt-1 text-gray-500">建议输入具体的主题，比如「10分钟快手早餐」「遛娃遇到的神器」等。</p>
+        <div className="flex items-start space-x-3">
+          <div className="flex-shrink-0 mt-1">
+            <div className="w-8 h-8 rounded-lg bg-[#D97757]/10 flex items-center justify-center">
+              <svg className="w-5 h-5 text-[#D97757]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                />
+              </svg>
             </div>
           </div>
-
-          {/* 生成按钮 */}
-          <button
-            onClick={generateContent}
-            className="w-full px-4 py-3 bg-[#D97757]
-                     hover:bg-[#C4623F] text-white rounded-xl
-                     transition-all duration-200 flex items-center justify-center
-                     gap-2 shadow-sm hover:shadow-md disabled:opacity-50
-                     disabled:cursor-not-allowed font-medium"
-            disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>内容生成中...</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>AI一键创作</span>
-              </>
-            )}
-          </button>
+          <div className="flex-1 text-sm text-gray-600 leading-relaxed">
+            <p>AI将根据你的标题创作一篇吸引眼球、互动性强的小红书笔记。</p>
+            <p className="mt-1 text-gray-500">建议输入具体的主题，比如「10分钟快手早餐」「遛娃遇到的神器」等。</p>
+          </div>
         </div>
+      </div>
+
+      {/* 生成按钮 */}
+      <div className="flex justify-center">
+        <button
+          onClick={generateContent}
+          className="w-[240px] px-4 py-2.5 bg-[#D97757]
+                   hover:bg-[#C4623F] text-white rounded-lg
+                   transition-all duration-200 flex items-center justify-center
+                   gap-2 shadow-sm hover:shadow-md disabled:opacity-50
+                   disabled:cursor-not-allowed font-medium text-sm"
+          disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              <span>内容生成中...</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>AI一键创作</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

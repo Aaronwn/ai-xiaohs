@@ -52,15 +52,18 @@ export default function ImageTextEditor({ onImageGenerated }: ImageTextEditorPro
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </div>
-      <button
-        onClick={handleGenerateImage}
-        disabled={isLoading}
-        className={`w-full px-4 py-2 text-white bg-[#D97757] rounded-lg
-                   font-medium transition-all hover:bg-[#C4623F]
-                   disabled:opacity-50 disabled:cursor-not-allowed`}
-      >
-        {isLoading ? '生成中...' : '生成图片'}
-      </button>
+      <div className="flex justify-center">
+        <button
+          onClick={handleGenerateImage}
+          disabled={isLoading}
+          className="w-[240px] px-4 py-2.5 text-white bg-[#D97757] rounded-lg
+                     font-medium text-sm transition-all hover:bg-[#C4623F]
+                     shadow-sm hover:shadow-md
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? '生成中...' : '生成图片'}
+        </button>
+      </div>
     </div>
   );
 }
